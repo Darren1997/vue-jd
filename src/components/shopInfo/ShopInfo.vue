@@ -36,6 +36,7 @@ export default {
       // flex:1;
       // flex-wrap: wrap;
       padding-bottom: .12rem;
+      color: #333;
       &--bordered{
          border-bottom: .01rem solid #F1F1F1;
       }

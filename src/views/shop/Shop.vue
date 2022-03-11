@@ -1,34 +1,59 @@
 <template>
     <div class="wrapper">
         <div class="search">
-            <div class="search__back iconfont">&#xe602;</div>
+            <div class="search__back iconfont" @click="handleBackClick">&#xe602;</div>
             <div class="search__content">
                 <span class="search__content__icon iconfont">&#xe600;</span>
                 <input type="text" class="search__content__input" placeholder="请输入商品名称搜索" />
             </div>
         </div>
-        <ShopInfo :item="item" :hiddenBottonLine="true"/>
+        <ShopInfo :item="data.item" :hiddenBottonLine="true" v-if="data.item.imgUrl"/>
+        <Content />
     </div>
 </template>
 
 <script>
+import { useRouter, useRoute } from 'vue-router'
+import { reactive } from 'vue'
 import ShopInfo from '../../components/shopInfo/ShopInfo.vue'
+import Content from './Content.vue'
+import { get } from '../../utils/request'
+
+const useGetShopInfoEffect = () => {
+  const route = useRoute()
+  const data = reactive({
+    item: {}
+  })
+  const getShopInfo = async () => {
+    const result = await get(`api/shop/${route.params.id}`)
+    if (result?.errno === 0 && result?.data) {
+      data.item = result.data
+    } else {
+      console.log('获取商家详情失败！')
+    }
+  }
+  return { data, getShopInfo }
+}
+
+const useHandleBackEffect = () => {
+  const router = useRouter()
+  const handleBackClick = () => {
+    router.back()
+  }
+  return { handleBackClick }
+}
+
 export default {
   name: 'Shop',
   components: {
-    ShopInfo
+    ShopInfo,
+    Content
   },
   setup () {
-    const item = {
-      expressLimit: 0,
-      expressPrice: 5,
-      imgUrl: 'http://www.dell-lee.com/imgs/vue3/near.png',
-      name: '沃尔玛',
-      sales: 10000,
-      slogan: 'VIP尊享满89元减4元运费券',
-      _id: '1'
-    }
-    return { item }
+    const { data, getShopInfo } = useGetShopInfoEffect()
+    getShopInfo()
+    const { handleBackClick } = useHandleBackEffect()
+    return { data, handleBackClick }
   }
 }
 </script>
